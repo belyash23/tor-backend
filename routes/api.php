@@ -18,3 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('/direction', [\App\Http\Controllers\Direction::class, 'get']);
+Route::post('/direction', [\App\Http\Controllers\Direction::class, 'add']);
