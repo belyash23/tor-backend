@@ -19,3 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 Route::get('/direction', [\App\Http\Controllers\Direction::class, 'get']);
 Route::post('/direction', [\App\Http\Controllers\Direction::class, 'add']);
+Route::patch('/direction/{id}', [\App\Http\Controllers\Direction::class, 'edit']);
