@@ -11,5 +11,6 @@ class DirectionKeyword extends Model
 
     protected $table = 'keyword';
     protected $hidden = ['id', 'direction_id'];
+    protected $fillable = ['word'];
     public $timestamps = false;
 }

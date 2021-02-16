@@ -10,6 +10,7 @@ class Direction extends Model
     use HasFactory;
 
     protected $table = 'direction';
+    protected $fillable = ['name', 'icon', 'description', 'color', 'status'];
     public $timestamps = false;
 
     public function images() {

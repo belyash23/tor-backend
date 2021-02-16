@@ -11,5 +11,6 @@ class DirectionImage extends Model
 
     protected $table = 'direction_image';
     protected $hidden = ['id', 'direction_id'];
+    protected $fillable = ['src'];
     public $timestamps = false;
 }
