@@ -5,6 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Direction
+ *
+ * @property int $id
+ * @property string $name
+ * @property string|null $icon
+ * @property string|null $description
+ * @property string|null $color
+ * @property string $status
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DirectionImage[] $images
+ * @property-read int|null $images_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DirectionKeyword[] $keywords
+ * @property-read int|null $keywords_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereIcon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Direction whereStatus($value)
+ * @mixin \Eloquent
+ */
 class Direction extends Model
 {
     use HasFactory;

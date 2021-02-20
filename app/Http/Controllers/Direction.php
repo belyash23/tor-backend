@@ -60,6 +60,7 @@ class Direction extends Controller
 
     public function add(Request $request){
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(),[
+            'name' => 'required',
             'status' => [Rule::in(['editing', 'published'])]
         ]);
 
@@ -83,11 +84,12 @@ class Direction extends Controller
                 $path = '/imgs/'.$name;
             }
 
+            $status = $request->get('status') ? $request->get('status'): 'editing';
             $direction = \App\Models\Direction::create([
                 'name' => $request->get('name'),
                 'icon' => $path,
                 'description' => $request->get('description'),
-                'status' => $request->get('status'),
+                'status' => $status,
                 'color' => $request->get('color')
             ]);
 
@@ -116,7 +118,7 @@ class Direction extends Controller
                 }
             }
 
-            return response(null, 201);
+            return response(null, 204);
         }
 
     }
@@ -126,7 +128,7 @@ class Direction extends Controller
             'status' => $request->get('status'),
             'id' => $id
         ],[
-            'status' => [Rule::in(['editing', 'published'])],
+            'status' => [Rule::in(['editing', 'published', null])],
             'id' => 'integer|required'
         ]);
 
@@ -172,13 +174,14 @@ class Direction extends Controller
             $path = '/imgs/'.$name;
         }
 
-        \App\Models\Direction::where('id', $id)->update([
+        $input = collect([
             'name' => $request->get('name'),
             'icon' => $path,
             'description' => $request->get('description'),
             'status' => $request->get('status'),
             'color' => $request->get('color')
-        ]);
+        ])->filter()->all();
+        \App\Models\Direction::where('id', $id)->update($input);
 
         DirectionKeyword::where('direction_id', $id)->delete();
         $direction = \App\Models\Direction::find($id);
@@ -208,7 +211,7 @@ class Direction extends Controller
             }
         }
 
-        return response(null, 201);
+        return response(null, 204);
 
 
     }
