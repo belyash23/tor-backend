@@ -43,4 +43,14 @@ class Direction extends Model
     public function keywords() {
         return $this->hasMany(DirectionKeyword::class);
     }
+
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($direction) {
+            $direction->images()->delete();
+            $direction->keywords()->delete();
+        });
+    }
+
 }

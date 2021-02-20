@@ -4,11 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DirectionImage;
 use App\Models\DirectionKeyword;
-use Faker\Provider\Image;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class Direction extends Controller
@@ -214,5 +210,27 @@ class Direction extends Controller
         return response(null, 204);
 
 
+    }
+
+    public function delete(Request $request, $id) {
+        $validator = \Illuminate\Support\Facades\Validator::make([
+            'id' => $id
+        ],[
+            'id' => 'integer|required'
+        ]);
+
+        if($validator->fails()) {
+            return response([
+                'error' => [
+                    'code' => 422,
+                    'message' => 'Validation Error',
+                    'errors' => $validator->errors()
+                ]
+            ], 422);
+        }
+
+        $direction = \App\Models\Direction::find($id);
+        $direction->delete();
+        return response(null, 204);
     }
 }
