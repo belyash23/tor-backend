@@ -177,12 +177,15 @@ class Direction extends Controller
             'status' => $request->get('status'),
             'color' => $request->get('color')
         ])->filter()->all();
-        \App\Models\Direction::where('id', $id)->update($input);
+        if($input) {
+            \App\Models\Direction::where('id', $id)->update($input);
+        }
 
-        DirectionKeyword::where('direction_id', $id)->delete();
         $direction = \App\Models\Direction::find($id);
+
         $keywords = $request->get('keywords');
         if($keywords) {
+            DirectionKeyword::where('direction_id', $id)->delete();
             foreach($keywords as $keyword) {
                 $direction->keywords()->create([
                     'word' => $keyword['word']
@@ -190,9 +193,12 @@ class Direction extends Controller
             }
         }
 
-        DirectionImage::where('direction_id', $id)->delete();
         $images = $request->get('images');
         if($images) {
+            $image = DirectionImage::where('direction_id', $id);
+            if(!$image->get()->isEmpty()) unlink(public_path($image->pluck('src')->first()));
+
+            $image->delete();
             foreach($images as $image) {
                 $data = $image['src'];
                 $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
@@ -212,7 +218,7 @@ class Direction extends Controller
 
     }
 
-    public function delete(Request $request, $id) {
+    public function delete($id) {
         $validator = \Illuminate\Support\Facades\Validator::make([
             'id' => $id
         ],[
