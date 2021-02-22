@@ -21,3 +21,8 @@ Route::get('/direction', [\App\Http\Controllers\Direction::class, 'get']);
 Route::post('/direction', [\App\Http\Controllers\Direction::class, 'add']);
 Route::patch('/direction/{id}', [\App\Http\Controllers\Direction::class, 'edit']);
 Route::delete('/direction/{id}', [\App\Http\Controllers\Direction::class, 'delete']);
+
+Route::get('/category', [\App\Http\Controllers\Category::class, 'get']);
+Route::post('/category', [\App\Http\Controllers\Category::class, 'add']);
+Route::patch('/category/{id}', [\App\Http\Controllers\Category::class, 'edit']);
+Route::delete('/category/{id}', [\App\Http\Controllers\Category::class, 'delete']);
