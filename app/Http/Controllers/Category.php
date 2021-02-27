@@ -22,15 +22,9 @@ class Category extends Controller
             ], 422);
         }
 
-        $query = $request->get('query');
         $status = $request->get('status');
 
         $data = \App\Models\Category::query();
-        if($query) {
-            $data = $data
-                ->where('name', 'like', '%'.$query.'%')
-                ->orWhere('description', 'like', '%'.$query.'%');
-        }
         if($status) {
             $data = $data->where('status', $status);
         }
@@ -134,6 +128,9 @@ class Category extends Controller
         $data = $request->get('icon');
         $path = null;
         if($data) {
+            $currentIcon = \App\Models\Category::where('id', $id)->pluck('icon')->first();
+            if($currentIcon) unlink(public_path($currentIcon));
+
             $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
             $name = "category-icon-".time().'.'.$extension;
             $path = public_path().'/imgs/'.$name;

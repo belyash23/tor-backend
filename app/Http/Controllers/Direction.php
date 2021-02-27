@@ -163,6 +163,9 @@ class Direction extends Controller
         $data = $request->get('icon');
         $path = null;
         if($data) {
+            $currentIcon = \App\Models\Direction::where('id', $id)->pluck('icon')->first();
+            if($currentIcon) unlink(public_path($currentIcon));
+
             $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
             $name = "direction-icon-".time().'.'.$extension;
             $path = public_path().'/imgs/'.$name;
