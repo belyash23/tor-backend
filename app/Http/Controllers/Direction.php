@@ -162,7 +162,8 @@ class Direction extends Controller
 
         $data = $request->get('icon');
         $path = null;
-        if($data) {
+
+        if(!empty($data)) {
             $currentIcon = \App\Models\Direction::where('id', $id)->pluck('icon')->first();
             if($currentIcon) unlink(public_path($currentIcon));
 
@@ -172,6 +173,11 @@ class Direction extends Controller
             \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
             $path = '/imgs/'.$name;
         }
+        elseif(!is_null($data)) {
+            $path = "";
+            $currentIcon = \App\Models\Direction::where('id', $id)->pluck('icon')->first();
+            if($currentIcon) unlink(public_path($currentIcon));
+        }
 
         $input = collect([
             'name' => $request->get('name'),
@@ -179,7 +185,10 @@ class Direction extends Controller
             'description' => $request->get('description'),
             'status' => $request->get('status'),
             'color' => $request->get('color')
-        ])->filter()->all();
+        ])->filter(function($value) {
+            return ! is_null($value);
+        })->all();
+
         if($input) {
             \App\Models\Direction::where('id', $id)->update($input);
         }
@@ -236,6 +245,18 @@ class Direction extends Controller
                     'errors' => $validator->errors()
                 ]
             ], 422);
+        }
+
+        $data = \App\Models\Direction::query();
+        $data = $data->where('id', $id)->get();
+
+        if($data->isEmpty()) {
+            return response([
+                'error' => [
+                    'code' => 404,
+                    'message' => 'Not Found'
+                ]
+            ], 404);
         }
 
         $direction = \App\Models\Direction::find($id);
