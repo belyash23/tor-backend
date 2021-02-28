@@ -26,3 +26,8 @@ Route::get('/category', [\App\Http\Controllers\Category::class, 'get']);
 Route::post('/category', [\App\Http\Controllers\Category::class, 'add']);
 Route::patch('/category/{id}', [\App\Http\Controllers\Category::class, 'edit']);
 Route::delete('/category/{id}', [\App\Http\Controllers\Category::class, 'delete']);
+
+Route::get('/resource', [\App\Http\Controllers\Resource::class, 'get']);
+Route::post('/resource', [\App\Http\Controllers\Resource::class, 'add']);
+Route::patch('/resource/{id}', [\App\Http\Controllers\Resource::class, 'edit']);
+Route::delete('/resource/{id}', [\App\Http\Controllers\Resource::class, 'delete']);
