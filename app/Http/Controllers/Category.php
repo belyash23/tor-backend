@@ -22,15 +22,9 @@ class Category extends Controller
             ], 422);
         }
 
-        $query = $request->get('query');
         $status = $request->get('status');
 
         $data = \App\Models\Category::query();
-        if($query) {
-            $data = $data
-                ->where('name', 'like', '%'.$query.'%')
-                ->orWhere('description', 'like', '%'.$query.'%');
-        }
         if($status) {
             $data = $data->where('status', $status);
         }
@@ -133,12 +127,20 @@ class Category extends Controller
 
         $data = $request->get('icon');
         $path = null;
-        if($data) {
+        if(!empty($data)) {
+            $currentIcon = \App\Models\Category::where('id', $id)->pluck('icon')->first();
+            if($currentIcon) unlink(public_path($currentIcon));
+
             $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
             $name = "category-icon-".time().'.'.$extension;
             $path = public_path().'/imgs/'.$name;
             \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
             $path = '/imgs/'.$name;
+        }
+        elseif(!is_null($data)) {
+            $path = "";
+            $currentIcon = \App\Models\Category::where('id', $id)->pluck('icon')->first();
+            if($currentIcon) unlink(public_path($currentIcon));
         }
 
         $input = collect([
@@ -147,7 +149,10 @@ class Category extends Controller
             'description' => $request->get('description'),
             'status' => $request->get('status'),
             'color' => $request->get('color')
-        ])->filter()->all();
+        ])->filter(function($value) {
+            return ! is_null($value);
+        })->all();
+
         if($input) {
             \App\Models\Category::where('id', $id)->update($input);
         }
@@ -170,6 +175,18 @@ class Category extends Controller
                     'errors' => $validator->errors()
                 ]
             ], 422);
+        }
+
+        $data = \App\Models\Category::query();
+        $data = $data->where('id', $id)->get();
+
+        if($data->isEmpty()) {
+            return response([
+                'error' => [
+                    'code' => 404,
+                    'message' => 'Not Found'
+                ]
+            ], 404);
         }
 
         $category = \App\Models\Category::find($id);
