@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use function PHPUnit\Framework\isEmpty;
 
 class Resource extends Controller
 {
@@ -25,6 +24,10 @@ class Resource extends Controller
 
         $query = $request->get('query');
         $status = $request->get('status');
+        $ageMin = $request->get('age_min');
+        $ageMax = $request->get('age_max');
+        $directionIds = $request->get('direction_id');
+        $categoryId = $request->get('category_id');
 
         $data = \App\Models\Resource::query();
         if($query) {
@@ -36,15 +39,29 @@ class Resource extends Controller
         if($status) {
             $data = $data->where('status', $status);
         }
-        $data = $data->get();
-
+        if($ageMin) {
+            $data = $data->where('age_min', '<=', $ageMin);
+        }
+        if($ageMax) {
+            $data = $data->where('age_max', '>=', $ageMax);
+        }
+        if($directionIds) {
+            $directionIds = explode(' ', $directionIds);
+            $data = $data->whereHas('directions', function($q) use($directionIds) {
+                $q->whereIn('id', $directionIds);
+            });
+        }
+        if($categoryId) {
+            $data = $data->where('categoryId', $categoryId);
+        }
+        $data = $data->with('directions')->get();
         if($data->isEmpty()) {
             return response([
                 'error' => [
                     'code' => 404,
                     'message' => 'Not Found'
                 ]
-            ], 404);
+            ], 404)->header('Content-Type', 'application/json');
         }
         else {
             return response([
@@ -87,17 +104,12 @@ class Resource extends Controller
         }
 
         $shortDescription = $request->get('short_description');
-        $directionId = null;
-        if($request->get('direction_id')) {
-            $directionId = join(' ', $request->get('direction_id'));
-
-        }
 
         $status = $request->get('status') ? $request->get('status'): 'editing';
         $dateStart = $request->get('date_start') ? date('Y-m-d', strtotime($request->get('date_start'))): null;
         $dateEnd = $request->get('date_end') ? date('Y-m-d', strtotime($request->get('date_end'))): null;
 
-        \App\Models\Resource::create([
+        $resource = \App\Models\Resource::create([
             'name' => $request->get('name'),
             'short_description' => $shortDescription,
             'description' => $request->get('description'),
@@ -110,8 +122,12 @@ class Resource extends Controller
             'image' => $path,
             'status' => $status,
             'category_id' => $request->get('category_id'),
-            'direction_id' => $directionId
         ]);
+
+        if($request->get('direction_id')) {
+            $directionId = $request->get('direction_id');
+            $resource->directions()->attach($directionId);
+        }
         
         return response(null, 204);
     }
@@ -177,10 +193,10 @@ class Resource extends Controller
         }
 
         $shortDescription = $request->get('short_description');
-        $directionId = null;
-        if($request->get('direction_id')) {
-            $directionId = join(' ', $request->get('direction_id'));
 
+        $directionIds = $request->get('direction_id');
+        if(!is_null($directionIds)) {
+            \App\Models\Resource::find($id)->directions()->sync($request->get('direction_id'));
         }
 
         $status = $request->get('status') ? $request->get('status'): 'editing';
@@ -199,8 +215,7 @@ class Resource extends Controller
             'website' => $request->get('website'),
             'image' => $path,
             'status' => $status,
-            'category_id' => $request->get('category_id'),
-            'direction_id' => $directionId
+            'category_id' => $request->get('category_id')
         ])->filter(function($value) {
             return ! is_null($value);
         })->map(function($item) {

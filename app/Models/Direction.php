@@ -43,6 +43,10 @@ class Direction extends Model
     public function keywords() {
         return $this->hasMany(DirectionKeyword::class);
     }
+    public function resources() {
+        return $this->belongsToMany(Resource::class, 'resource_direction', 'direction_id', 'resource_id');
+    }
+
 
     public static function boot() {
         parent::boot();
@@ -56,6 +60,7 @@ class Direction extends Model
 
             $direction->images()->delete();
             $direction->keywords()->delete();
+            $direction->resources()->detach();
         });
     }
 

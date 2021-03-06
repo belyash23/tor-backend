@@ -10,8 +10,12 @@ class Resource extends Model
     use HasFactory;
 
     protected $table = 'resource';
-    protected $fillable = ['name', 'short_description', 'description', 'date_start', 'date_end', 'age_min', 'age_max', 'location', 'website', 'image', 'status', 'category_id', 'direction_id'];
+    protected $fillable = ['name', 'short_description', 'description', 'date_start', 'date_end', 'age_min', 'age_max', 'location', 'website', 'image', 'status', 'category_id'];
     public $timestamps = false;
+
+    public function directions() {
+        return $this->belongsToMany(Direction::class, 'resource_direction', 'resource_id', 'direction_id');
+    }
 
     public static function boot() {
         parent::boot();
@@ -19,6 +23,8 @@ class Resource extends Model
         static::deleting(function($resource) {
             $image = $resource->image;
             if($image && stripos($image, 'resource-')) unlink(public_path($image));
+
+            $resource->directions()->detach();
         });
     }
 }
