@@ -22,6 +22,7 @@ class Resource extends Controller
             ], 422);
         }
 
+        $id = $request->get('id');
         $query = $request->get('query');
         $status = $request->get('status');
         $ageMin = $request->get('age_min');
@@ -53,6 +54,9 @@ class Resource extends Controller
         }
         if($categoryId) {
             $data = $data->where('categoryId', $categoryId);
+        }
+        if($id) {
+            $data = $data->where('id', $id);
         }
         $data = $data->with('directions')->get();
         if($data->isEmpty()) {
