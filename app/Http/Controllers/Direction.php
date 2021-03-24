@@ -27,6 +27,7 @@ class Direction extends Controller
 
         $query = $request->get('query');
         $status = $request->get('status');
+        $id = $request->get('id');
 
         $data = \App\Models\Direction::query();
         if($query) {
@@ -36,6 +37,9 @@ class Direction extends Controller
         }
         if($status) {
             $data = $data->where('status', $status);
+        }
+        if($id) {
+            $data = $data->where('id', $id);
         }
         $data = $data->with('images', 'keywords')->get();
 
