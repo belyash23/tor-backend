@@ -27,4 +27,12 @@ class DirectionImage extends Model
     protected $hidden = ['id', 'direction_id'];
     protected $fillable = ['src'];
     public $timestamps = false;
+
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($image) {
+            if(!$image->get()->isEmpty()) unlink(public_path($image->pluck('src')->first()));
+        });
+    }
 }

@@ -52,15 +52,8 @@ class Direction extends Model
         parent::boot();
 
         static::deleting(function($direction) {
-            $image = $direction->images();
-            if(!$image->get()->isEmpty()) unlink(public_path($image->pluck('src')->first()));
-
             $icon = $direction->icon;
             if($icon) unlink(public_path($icon));
-
-            $direction->images()->delete();
-            $direction->keywords()->delete();
-            $direction->resources()->detach();
         });
     }
 

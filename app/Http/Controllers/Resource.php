@@ -67,11 +67,9 @@ class Resource extends Controller
                 ]
             ], 404)->header('Content-Type', 'application/json');
         }
-        else {
-            return response([
-                'data' => $data
-            ], 200);
-        }
+        return response([
+            'data' => $data
+        ], 200);
     }
 
     public function add(Request $request){
@@ -155,8 +153,8 @@ class Resource extends Controller
             ], 422);
         }
 
-        $data = \App\Models\Resource::query();
-        $data = $data->where('id', $id)->get();
+        $dataQuery = \App\Models\Resource::query();
+        $data = $dataQuery->where('id', $id)->get();
 
         if($data->isEmpty()) {
             return response([

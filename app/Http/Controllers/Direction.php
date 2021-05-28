@@ -51,11 +51,9 @@ class Direction extends Controller
                 ]
             ], 404);
         }
-        else {
-            return response([
-                'data' => $data
-            ], 200);
-        }
+        return response([
+            'data' => $data
+        ], 200);
     }
 
     public function add(Request $request){
@@ -73,53 +71,51 @@ class Direction extends Controller
                 ]
             ], 422);
         }
-        else {
-            $data = $request->get('icon');
-            $path = null;
-            if($data) {
+        $data = $request->get('icon');
+        $path = null;
+        if($data) {
+            $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
+            $name = "direction-icon-".time().'.'.$extension;
+            $path = public_path().'/imgs/'.$name;
+            \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
+            $path = '/imgs/'.$name;
+        }
+
+        $status = $request->get('status') ? $request->get('status'): 'editing';
+        $direction = \App\Models\Direction::create([
+            'name' => $request->get('name'),
+            'icon' => $path,
+            'description' => $request->get('description'),
+            'status' => $status,
+            'color' => $request->get('color')
+        ]);
+
+        $keywords = $request->get('keywords');
+        if($keywords) {
+            foreach($keywords as $keyword) {
+                $direction->keywords()->create([
+                    'word' => $keyword['word']
+                ]);
+            }
+        }
+
+        $images = $request->get('images');
+        if($images) {
+            foreach($images as $image) {
+                $data = $image['src'];
                 $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
-                $name = "direction-icon-".time().'.'.$extension;
+                $name = "direction-image-".time().'.'.$extension;
                 $path = public_path().'/imgs/'.$name;
                 \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
                 $path = '/imgs/'.$name;
+
+                $direction->images()->create([
+                    'src' => $path
+                ]);
             }
-
-            $status = $request->get('status') ? $request->get('status'): 'editing';
-            $direction = \App\Models\Direction::create([
-                'name' => $request->get('name'),
-                'icon' => $path,
-                'description' => $request->get('description'),
-                'status' => $status,
-                'color' => $request->get('color')
-            ]);
-
-            $keywords = $request->get('keywords');
-            if($keywords) {
-                foreach($keywords as $keyword) {
-                    $direction->keywords()->create([
-                        'word' => $keyword['word']
-                    ]);
-                }
-            }
-
-            $images = $request->get('images');
-            if($images) {
-                foreach($images as $image) {
-                    $data = $image['src'];
-                    $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
-                    $name = "direction-image-".time().'.'.$extension;
-                    $path = public_path().'/imgs/'.$name;
-                    \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
-                    $path = '/imgs/'.$name;
-
-                    $direction->images()->create([
-                        'src' => $path
-                    ]);
-                }
-            }
-
-            return response(null, 204);
         }
+
+        return response(null, 204);
 
     }
 
@@ -265,6 +261,9 @@ class Direction extends Controller
 
         $direction = \App\Models\Direction::find($id);
         $direction->delete();
+        $direction->images()->delete();
+        $direction->keywords()->delete();
+        $direction->resources()->detach();
         return response(null, 204);
     }
 }

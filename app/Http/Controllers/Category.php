@@ -38,11 +38,9 @@ class Category extends Controller
                 ]
             ], 404);
         }
-        else {
-            return response([
-                'data' => $data
-            ], 200);
-        }
+        return response([
+            'data' => $data
+        ], 200);
     }
 
     public function add(Request $request){
@@ -60,28 +58,26 @@ class Category extends Controller
                 ]
             ], 422);
         }
-        else {
-            $data = $request->get('icon');
-            $path = null;
-            if($data) {
-                $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
-                $name = "category-icon-".time().'.'.$extension;
-                $path = public_path().'/imgs/'.$name;
-                \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
-                $path = '/imgs/'.$name;
-            }
-
-            $status = $request->get('status') ? $request->get('status'): 'editing';
-            \App\Models\Category::create([
-                'name' => $request->get('name'),
-                'icon' => $path,
-                'description' => $request->get('description'),
-                'status' => $status,
-                'color' => $request->get('color')
-            ]);
-
-            return response(null, 204);
+        $data = $request->get('icon');
+        $path = null;
+        if($data) {
+            $extension = explode('/', explode(':', substr($data, 0, strpos($data, ';')))[1])[1];
+            $name = "category-icon-".time().'.'.$extension;
+            $path = public_path().'/imgs/'.$name;
+            \Intervention\Image\Facades\Image::make(file_get_contents($data))->save($path);
+            $path = '/imgs/'.$name;
         }
+
+        $status = $request->get('status') ? $request->get('status'): 'editing';
+        \App\Models\Category::create([
+            'name' => $request->get('name'),
+            'icon' => $path,
+            'description' => $request->get('description'),
+            'status' => $status,
+            'color' => $request->get('color')
+        ]);
+
+        return response(null, 204);
 
     }
 
